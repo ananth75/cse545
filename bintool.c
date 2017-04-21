@@ -18,7 +18,15 @@ size_t check_memory_access(void *  ptr)
 
 }
 
-void
+void   del_memory_track(void *ptr)
+{
+
+}
+
+void update_memory_track(void *ptr, size_t size)
+{
+	
+}
 void *malloc(int req_size)
 {
 	void*(*actual_malloc)(int size);
