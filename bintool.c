@@ -2,7 +2,23 @@
 #include <stdio.h>
 #include <dlfcn.h>
 
+typedef struct {
+	void *mem_ptr;
+	size_t size;
+	char[6] canary;
+}mem_track;
 
+mem_track ins[999];
+
+
+/*Returns -1 if memory access is denied
+           size of the Memory chunk otherwise */
+size_t check_memory_access(void *  ptr)
+{
+
+}
+
+void
 void *malloc(int req_size)
 {
 	void*(*actual_malloc)(int size);
