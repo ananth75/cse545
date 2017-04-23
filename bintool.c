@@ -73,13 +73,14 @@ void update_memory_track(void *ptr, size_t size)
 		}
 	}
 }
+
 void *malloc(int req_size)
 {
 	void*(*actual_malloc)(int size);
 	void *m_ptr;
 
 	actual_malloc = dlsym(RTLD_NEXT, "malloc");
-    fprintf(stdout, "hello\n");
+	fprintf(stdout, "hello\n");
 	m_ptr = actual_malloc(req_size + CANAARY_SIZE);
 
 	int i = 0;
@@ -108,7 +109,57 @@ void free(void *req_ptr)
 
 	actual_free = dlsym(RTLD_NEXT, "free");
 	actual_free(req_ptr);
+}
 
+
+char * strncpy(char *dest, char *src, int n)
+{
+	int i=0;
+
+	for(i = 0;i<n ; i++)
+	{
+		if(src[i]!='\0')
+			dest[i]=src[i];
+		else
+			dest[i]='\0';
+	}
+	dest[i-1]='\0';
+}
+
+char* strcpy(char *dest, char* src)
+{
+
+	size_t s = check_memory_access(dest);
+	if(s == -1)
+	{
+		return dest;
+	}
+	return strncpy(dest,src,s);
+}
+
+char* gets(char *src)
+{
+	size_t n = check_memory_access(dest);
+        if(n == -1)
+        {
+                return NULL;
+        }
+
+	int i=0;
+	char j;
+	char *ch = src;
+	while((j = getchar ()) != '\n' && i<n-1) 
+	{
+        	if (j == EOF)
+		{
+			if (ch == src || !feof(stdin))
+                		return NULL;
+        		break;
+        	}
+        	*ch++ = j; // character is stored at address, and pointer is incremented
+        	i++;
+    	}
+	*ch = '\0'; //add null terminating character
 }
 
 
