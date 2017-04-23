@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include <stdio.h>
+#include <stdbool.h>
 #include <dlfcn.h>
 
 #define MAXMEM 999
@@ -7,11 +8,12 @@
 typedef struct {
 	void *mem_ptr;
 	size_t alloc_size;
-	char[CANAARY_SIZE] canary;
-	boolean in_use;
+	char canary[CANAARY_SIZE];
+	bool in_use;
 }mem_track;
 
 mem_track ins[MAXMEM];
+int i =0;
 
 for(int i = 0; i < MAXMEM; i++)
 {
@@ -21,16 +23,15 @@ for(int i = 0; i < MAXMEM; i++)
            size of the Memory chunk otherwise */
 size_t check_memory_access(void *  ptr)
 {
-
-	for(int i = 0; i < MAXMEM; i++)
+	for(i = 0; i < MAXMEM; i++)
 	{
 		//Fetch the Allocated block's information
-		if(ins[i].in_use == TRUE) 
+		if(ins[i].in_use == true) 
 		{
 			if(ptr >= ins[i].mem_ptr)
 			{
 				if(ptr <= (ins[i].mem_ptr + ins[i].alloc_size) &&
-				   !memcmp(ins[i].mem_ptr + ins[i].alloc_size, ins[i].canary, 6)
+				   !memcmp(ins[i].mem_ptr + ins[i].alloc_size, ins[i].canary, 6))
 				{
 					//Return the writable size that is allowed with this request
 					return ((ins[i].mem_ptr + ins[i].alloc_size) - ptr);
@@ -47,13 +48,12 @@ size_t check_memory_access(void *  ptr)
 
 void  del_memory_track(void *ptr)
 {
-
-	for(int i = 0; i < MAXMEM; i++)
+	for(i = 0; i < MAXMEM; i++)
 	{
-		if(ins[i].in_use == TRUE && (ptr > ins[i].mem_ptr) &&
+		if(ins[i].in_use == true && (ptr > ins[i].mem_ptr) &&
 		  (ptr < ins[i].mem_ptr + ins[i].alloc_size))
 		{
-			ins[i].in_use = FALSE;
+			ins[i].in_use = false;
 			ins[i].mem_ptr = 0;
 			ins[i].alloc_size = 0;
 		}
@@ -63,10 +63,9 @@ void  del_memory_track(void *ptr)
 
 void update_memory_track(void *ptr, size_t size)
 {
-	
-	for(int i = 0; i < MAXMEM; i++)
+	for(i = 0; i < MAXMEM; i++)
 	{
-		if(ins[i].in_use == TRUE && (ptr > ins[i].mem_ptr) &&
+		if(ins[i].in_use == true && (ptr > ins[i].mem_ptr) &&
 		  (ptr < ins[i].mem_ptr + ins[i].alloc_size))
 		{
 			ins[i].mem_ptr = (void *)ptr;
@@ -86,7 +85,7 @@ void *malloc(int req_size)
 	int i = 0;
 	while(i < MAXMEM)
 	{
-		if(ins[i].in_use == FALSE)
+		if(ins[i].in_use == false)
 		{
 			ins[i].mem_ptr = m_ptr;
 			ins[i].alloc_size = req_size;
@@ -99,7 +98,6 @@ void *malloc(int req_size)
 			continue;
 		}
 	}
-	memcpy()
 	return m_ptr;
 
 }
