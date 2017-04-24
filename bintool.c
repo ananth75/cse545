@@ -89,7 +89,7 @@ void *malloc(int req_size)
 			ins[i].mem_ptr = m_ptr;
 			ins[i].alloc_size = req_size;
 			memcpy(ins[i].canary, "CSE545", CANAARY_SIZE);
-		        ins[i].in_use = true;
+		    ins[i].in_use = true;
 			break;
 		}
 		else
@@ -139,39 +139,88 @@ char* strcpy(char *dest, char* src)
 char* gets(char* src)
 {
 	size_t s = check_memory_access(src);
-        assert(s!= -1);
-        
-        int j = 0;
-        while(j < s-1)
+        //assert(s!= -1);
+     if(s == -1)
+     {
+         return NULL;
+     } 
+    int j = 0;
+    int c;
+    while(j < s-1)
 	{
-	   if(!feof(stdin))
-	}
-        
-}	
+		if(feof(stdin))
+			break;
 
-char* gets(char *src)
-{
-	size_t n = check_memory_access(src);
-        if(n == -1)
-        {
-                return NULL;
-        }
-
-	int i=0;
-	char j;
-	char *ch = src;
-	while((j = getchar ()) != '\n' && i<n-1) 
-	{
-        	if (j == EOF)
+        if ((c = getchar()) == '\n')
 		{
-			if (ch == src || !feof(stdin))
-                		return NULL;
-        		break;
-        	}
-        	*ch++ = j; // character is stored at address, and pointer is incremented
-        	i++;
-    	}
-	*ch = '\0'; //add null terminating character
+			break;
+		}
+		else
+		{
+			*src++ = c;
+		}
+
+	   j++;
+	}
+	if(feof(stdin) && (j == 0))
+	{
+		return NULL;
+	}
+    *(src) = '\0';
+    return *src;    
 }
 
+char *fgets(char *s, int size, FILE *stream) 
+{
+	size_t s1 = check_memory_access(s);
+	if(s1 == -1)
+		return NULL;
+
+	if(s1 < size) 
+		size = s1;
+
+    int j = 0;
+    int c;
+	while(j < size -1 && (c = getc(stream)) != EOF)
+	{
+		/*Assign the character read from file to dest string
+		Man Page suggests that we store the NEWLINE too into
+		the buffer before terminating */
+		if((*s++ = c) == '\n')
+		{
+			break;
+		}
+		j++;
+	}
+	*s = '\0';
+	if(j == 0 && c == EOF)
+		return NULL;
+	return s;
+}
+
+char* strcat(char *dest, const char *src)
+{
+	size_t ds = check_memory_access(dest);
+	//size_t ss = check_memory_access(src);
+
+	int j = 0;
+
+	// Navigate to the end of First String
+	while(*dest != '\0')
+	{
+		j++;
+		*dest++;
+	}
+
+	/* Now Fill the destination until you encounter
+       a NULL character or reach the Size limit of
+       Destination string */
+
+	while(j < ds -1 && *src != '\0')
+	{
+		*dest++ = *src++;
+	}
+	*dest = '\0';
+	return dest;
+}
 
