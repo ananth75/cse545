@@ -15,10 +15,6 @@ typedef struct {
 mem_track ins[MAXMEM];
 int i =0;
 
-for(int i = 0; i < MAXMEM; i++)
-{
-	ins[i].in_use = FALSE;
-}
 /*Returns -1 if memory access is denied
            size of the Memory chunk otherwise */
 size_t check_memory_access(void *  ptr)
@@ -39,10 +35,12 @@ size_t check_memory_access(void *  ptr)
 				else
 				{
 					fprintf(stderr, "ILLEGAL Memory Access");
+					return -1;
 				}
 			}
 		}
 	}
+	return -1;
 
 }
 
@@ -91,6 +89,7 @@ void *malloc(int req_size)
 			ins[i].mem_ptr = m_ptr;
 			ins[i].alloc_size = req_size;
 			memcpy(ins[i].canary, "CSE545", CANAARY_SIZE);
+		        ins[i].in_use = true;
 			break;
 		}
 		else
@@ -137,9 +136,22 @@ char* strcpy(char *dest, char* src)
 	return strncpy(dest,src,s);
 }
 
+char* gets(char* src)
+{
+	size_t s = check_memory_access(src);
+        assert(s!= -1);
+        
+        int j = 0;
+        while(j < s-1)
+	{
+	   if(!feof(stdin))
+	}
+        
+}	
+
 char* gets(char *src)
 {
-	size_t n = check_memory_access(dest);
+	size_t n = check_memory_access(src);
         if(n == -1)
         {
                 return NULL;
