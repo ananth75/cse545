@@ -5,6 +5,7 @@
 
 #define MAXMEM 999
 #define CANAARY_SIZE 6
+#define RAND_MAX 32767
 typedef struct {
 	void *mem_ptr;
 	size_t alloc_size;
@@ -15,6 +16,16 @@ typedef struct {
 mem_track ins[MAXMEM];
 int i =0;
 
+void generate_random_string(char *str) {
+	char range[] = {"ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz"};
+	int length = CANAARY_SIZE;
+	int pos;
+	while(length > 0) {
+		pos = ((rand() / RAND_MAX) % sizeof(range));
+		*str++ = range[pos-1];
+		length--;
+	}
+}
 /*Returns -1 if memory access is denied
            size of the Memory chunk otherwise */
 size_t check_memory_access(void *  ptr)
@@ -26,6 +37,7 @@ size_t check_memory_access(void *  ptr)
 		{
 			if(ptr >= ins[i].mem_ptr)
 			{
+ 				//fprintf(stdout, "\n Canary 1 %s and %s \n", ins[i].canary, ins[i].mem_ptr + ins[i].alloc_size);
 				if(ptr <= (ins[i].mem_ptr + ins[i].alloc_size) &&
 				   !memcmp(ins[i].mem_ptr + ins[i].alloc_size, ins[i].canary, 6))
 				{
@@ -88,7 +100,9 @@ void *malloc(int req_size)
 		{
 			ins[i].mem_ptr = m_ptr;
 			ins[i].alloc_size = req_size;
-			memcpy(ins[i].canary, "CSE545", CANAARY_SIZE);
+			generate_random_string(&ins[i].canary);
+                        memcpy(m_ptr + req_size, ins[i].canary, CANAARY_SIZE);
+			fprintf(stdout, "\nCanary String %s\n", ins[i].canary);
 		    ins[i].in_use = true;
 			break;
 		}
@@ -122,7 +136,7 @@ char * strncpy(char *dest, char *src, int n)
 		else
 			dest[i]='\0';
 	}
-	dest[i-1]='\0';
+	dest[n-1]='\0';
 }
 
 char* strcpy(char *dest, char* src)
